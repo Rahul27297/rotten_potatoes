@@ -18,4 +18,8 @@ class Movie < ActiveRecord::Base
     @ratings_to_show = ratings
     Movie.where({rating: ratings})
   end
+  
+  def self.with_sort(movies, sort_by)
+    return movies.order(sort_by)
+  end
 end
