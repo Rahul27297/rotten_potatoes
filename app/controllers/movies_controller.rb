@@ -9,12 +9,12 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all_ratings
     if params.has_key?(:ratings)
-      @query_ratings = (params[:ratings]).keys
+      @query_ratings = (params[:ratings])
     else
       if session.has_key?(:ratings)
         @query_ratings = session[:ratings]
       else
-        @query_ratings = @all_ratings
+        @query_ratings = Hash[@all_ratings.map {|x| [x, 1]}]
       end
     end
     
@@ -26,12 +26,14 @@ class MoviesController < ApplicationController
       end
     end
 
+    if (!params.has_key?(:ratings) && !params.has_key?(:sort_by))
+      redirect_to(movies_path(ratings: @query_ratings, sort_by: @query_sort))
+    end
+    
     if !(@query_ratings.nil?)
       session[:ratings] = @query_ratings
-      @movies = Movie.with_ratings(@query_ratings)
-    else
-      @movies = Movie.with_ratings(@all_ratings)
     end
+    @movies = Movie.with_ratings(@query_ratings.keys)
     @ratings_to_show = Movie.ratings_to_show
     
     if !(@query_sort.nil?)
